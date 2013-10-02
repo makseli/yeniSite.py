@@ -1,42 +1,86 @@
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+print(bcolors.FAIL+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
+print(bcolors.OKBLUE+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
+
+Encin = raw_input("\n ** hangisini kullaniyorsunuz ? apache2 veya nginx giriniz ( ontanimli nginx ) : ")
+if Encin != "apache2": Encin = "nginx"
+print(bcolors.OKGREEN+" \n Kullandiginiz Encin \"" + Encin + "\" olarak atandi !\n"+bcolors.ENDC)
+
 ServerName = raw_input("\n ** ServerName giriniz: ")
-print(" \n ServerName \"" + ServerName + "\" olarak atandi !\n")
+print(bcolors.OKGREEN+" \n ServerName \"" + ServerName + "\" olarak atandi !\n"+bcolors.ENDC)
 
 DocumentRoot = raw_input(" ** DocumentRoot giriniz (ontanimli /var/www/" + ServerName + ") : ")
 if DocumentRoot == "": DocumentRoot = "/var/www/" + ServerName
-print("DocumentRoot \"" + DocumentRoot + "\" olarak atandi !\n")
+print(bcolors.OKGREEN+"DocumentRoot \"" + DocumentRoot + "\" olarak atandi !\n"+ bcolors.ENDC)
 
 ServerAdmin =  raw_input(" ServerAdmin E-Posta giriniz (ontanimli= bilgi@" + ServerName + ") : ")
 if ServerAdmin == "": ServerAdmin = "bilgi@" + ServerName
-print(" \n ServerAdmin \"" + ServerAdmin + "\" olarak atandi !\n ")
+print(bcolors.OKGREEN+" \n ServerAdmin \"" + ServerAdmin + "\" olarak atandi !\n "+ bcolors.ENDC)
 
-ErrorLog = raw_input(" ** ErrorLog giriniz (ontanimli= /var/log/"+ServerName+"): ")
-if ErrorLog == "": ErrorLog = "/var/log/"+ServerName
-print("ErrorLog \"" + ErrorLog + "\" olarak atandi !\n")
+ErrorLog = raw_input(" ** ErrorLog giriniz (ontanimli= /var/log/"+ServerName+".err): ")
+if ErrorLog == "": ErrorLog = "/var/log/"+ServerName+".err"
+print(bcolors.OKGREEN+"ErrorLog \"" + ErrorLog + "\" olarak atandi !\n"+ bcolors.ENDC)
 
-CustomLog = raw_input(" ** CustomLog giriniz (ontanimli= /var/log/CA_"+ServerName+"): ")
-if CustomLog == "": CustomLog = "/var/log/CA_"+ServerName+""
-print("CustomLog \"" + CustomLog + "\" olarak atandi !\n")
+CustomLog = raw_input(" ** CustomLog giriniz (ontanimli= /var/log/"+ServerName+".clg): ")
+if CustomLog == "": CustomLog = "/var/log/"+ServerName+".clg"
+print(bcolors.OKGREEN+"CustomLog \"" + CustomLog + "\" olarak atandi !\n"+ bcolors.ENDC)
 
-metin = """<VirtualHost *:80>
-        ServerAdmin \""""+ServerAdmin+"""\"
-        DocumentRoot \""""+DocumentRoot+"""\"
-        ServerName \""""+ServerName+"""\"
-        ErrorLog \""""+ErrorLog+"""\"
-        CustomLog \""""+CustomLog+"""\" common
-</VirtualHost>"""
+if Encin != "nginx":
+	metin = """<VirtualHost *:80>
+			ServerAdmin \""""+ServerAdmin+"""\"
+			DocumentRoot \""""+DocumentRoot+"""\"
+			ServerName \""""+ServerName+"""\"
+			ErrorLog \""""+ErrorLog+"""\"
+			CustomLog \""""+CustomLog+"""\" common
+	</VirtualHost>"""
+	dosyaYolu = "/etc/apache2/sites-available/"
 
+else:
+	metin = """server {
+  server_name *."""+ServerName+""";
+  listen 80;
+  root """+DocumentRoot+""";
+  
+  index index.php;
+  location / {
+    try_files $uri $uri/ @rewrites;
+  }
+  location @rewrites {
+    rewrite ^ /index.php last;
+  }
+  location ~ \.php {
+    fastcgi_index index.php;
+    fastcgi_split_path_info ^(.+\.php)(.*)$;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  } }"""
+	dosyaYolu = "/etc/nginx/sites-available/"
+	
+	
 import os;
 os.getcwd()
-dosyaAdi = "/etc/apache2/sites-enabled/"+ServerName+""
-VHostDosya = open(dosyaAdi, "w")
+VHostDosya = open(dosyaYolu+ServerName+".conf", "w")
 VHostDosya.write(metin)
 VHostDosya.close()
-print("yeni \"" + dosyaAdi + "\" dosya olusturuldu !\n")
+
+print(bcolors.WARNING+"yeni \"" + dosyaYolu + ServerName +".conf"+ "\" dosya olusturuldu !\n"+bcolors.ENDC)
 
 LokalHostDosya = open("/etc/hosts", "a")
-LokalHostDosya.write("127.0.0.1		" + ServerName)
+LokalHostDosya.write("127.0.0.1         " + ServerName)
 LokalHostDosya.close()
 
-os.system("sudo /etc/init.d/apache2 restart")
+if Encin != "nginx":
+	os.system("sudo ln -s "+dosyaYolu+ServerName+".conf /etc/apache2/sites-enabled/"+ServerName+".conf")
+	os.system("sudo service apache2 restart")
+else:
+	os.system("sudo ln -s "+dosyaYolu+ServerName+".conf /etc/nginx/sites-enabled/"+ServerName+".conf")
+	os.system("sudo service nginx restart")
 
 exit();
