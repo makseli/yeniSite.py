@@ -74,7 +74,7 @@ VHostDosya.close()
 print(bcolors.WARNING+"yeni \"" + dosyaYolu + ServerName +".conf"+ "\" dosya olusturuldu !\n"+bcolors.ENDC)
 
 LokalHostDosya = open("/etc/hosts", "a")
-LokalHostDosya.write("127.0.0.1         " + ServerName)
+LokalHostDosya.write("\n" +"127.0.0.1         " + ServerName)
 LokalHostDosya.close()
 
 if Encin != "nginx":
