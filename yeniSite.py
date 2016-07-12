@@ -1,12 +1,26 @@
+import os,commands;
+os.getcwd()
+
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+	HEADER = '\033[95m'
+	OKBLUE = '\033[94m'
+	OKGREEN = '\033[92m'
+	WARNING = '\033[93m'
+	FAIL = '\033[91m'
+	ENDC = '\033[0m'
+
 print(bcolors.FAIL+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
 print(bcolors.OKBLUE+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
+
+phpv = commands.getoutput("php -r \@phpinfo\(\)\; | grep 'PHP Version' -m 1")
+
+phpv = phpv.replace("PHP Version => ", "")
+
+PHPV = "php5"
+
+if phpv[0] == "7":
+	PHPV = "php/php7.0"
+	print("PHP 7 kullaniyorsunuz");
 
 Encin = raw_input("\n ** hangisini kullaniyorsunuz ? apache2 veya nginx giriniz ( ontanimli nginx ) : ")
 if Encin != "apache2": Encin = "nginx"
@@ -58,15 +72,14 @@ else:
     fastcgi_index index.php;
     fastcgi_split_path_info ^(.+\.php)(.*)$;
     include /etc/nginx/fastcgi_params;
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_pass unix:/var/run/"""+PHPV+"""-fpm.sock;
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
   } 
   }"""
 	dosyaYolu = "/etc/nginx/sites-available/"
 	
 	
-import os;
-os.getcwd()
+
 VHostDosya = open(dosyaYolu+ServerName+".conf", "w")
 VHostDosya.write(metin)
 VHostDosya.close()
