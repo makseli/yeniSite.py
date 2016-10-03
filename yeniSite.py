@@ -9,8 +9,10 @@ class bcolors:
 	FAIL = '\033[91m'
 	ENDC = '\033[0m'
 
-print(bcolors.FAIL+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
-print(bcolors.OKBLUE+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
+if commands.getoutput("whoami") != "root":
+	print(bcolors.FAIL+" \n LUTFEN yeniSite.py dosyasini SUDO izni ile calistirdiginiza emin olunuz  \n"+bcolors.ENDC)
+	exit();
+
 
 phpv = commands.getoutput("php -r \@phpinfo\(\)\; | grep 'PHP Version' -m 1")
 
