@@ -21,8 +21,10 @@ phpv = phpv.replace("PHP Version => ", "")
 PHPV = "php5"
 
 if phpv[0] == "7":
-	PHPV = "php/php7.0"
-	print("PHP 7 kullaniyorsunuz");
+	PHPV = "php/php7."+phpv[2]
+	print("PHP 7 kullaniyorsunuz")
+
+print PHPV
 
 Encin = raw_input("\n ** hangisini kullaniyorsunuz ? apache2 veya nginx giriniz ( ontanimli nginx ) : ")
 if Encin != "apache2": Encin = "nginx"
